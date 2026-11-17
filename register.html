@@ -1,0 +1,327 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التسجيل، الغيابات والإعلانات - مدرسة الدعم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; background-color: #0b0f19; color: #f3f4f6; }
+        .glass-card { background: rgba(17, 24, 39, 0.78); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .glass-input { background: rgba(31, 41, 55, 0.65); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; }
+        .glass-input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto space-y-8">
+        
+        <!-- الهيدر -->
+        <header class="glass-card p-6 rounded-3xl flex flex-col sm:flex-row justify-between items-center gap-4 shadow-2xl">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-2xl shadow-lg">⚡</div>
+                <div>
+                    <h1 class="text-2xl font-black text-white">العمليات اليومية والتسجيل</h1>
+                    <p class="text-sm text-slate-400">تسجيل التلاميذ وتوليد QR • الغيابات • الإعلانات</p>
+                </div>
+            </div>
+            <span class="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-bold">
+                متصل بـ Firebase
+            </span>
+        </header>
+
+        <!-- القسم 1: تسجيل تلميذ جديد وتوليد QR -->
+        <section class="glass-card p-6 md:p-8 rounded-3xl shadow-xl space-y-6">
+            <h2 class="text-xl font-bold text-blue-400 flex items-center gap-2">
+                <i class="fa-solid fa-user-plus"></i> 1. تسجيل تلميذ جديد وتوليد الرمز و الـ QR
+            </h2>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <input type="text" id="regFirstName" placeholder="الاسم" class="glass-input p-3.5 rounded-2xl text-sm">
+                <input type="text" id="regLastName" placeholder="اللقب" class="glass-input p-3.5 rounded-2xl text-sm">
+                
+                <select id="regLevel" onchange="toggleBranchSelect()" class="glass-input p-3.5 rounded-2xl text-sm">
+                    <option value="">اختر المرحلة التعليمية...</option>
+                    <option value="متوسط">التعليم المتوسط</option>
+                    <option value="ثانوي">التعليم الثانوي</option>
+                </select>
+
+                <select id="regBranch" class="glass-input p-3.5 rounded-2xl text-sm hidden">
+                    <option value="">اختر الشعبة...</option>
+                    <option value="جذع مشترك علوم">جذع مشترك علوم</option>
+                    <option value="جذع مشترك آداب">جذع مشترك آداب</option>
+                    <option value="علوم تجريبية">علوم تجريبية</option>
+                    <option value="رياضيات">رياضيات</option>
+                    <option value="تقني رياضي">تقني رياضي</option>
+                    <option value="تسيير واقتصاد">تسيير واقتصاد</option>
+                    <option value="لغات أجنبية">لغات أجنبية</option>
+                    <option value="آداب وفلسفة">آداب وفلسفة</option>
+                </select>
+
+                <select id="regYear" class="glass-input p-3.5 rounded-2xl text-sm">
+                    <option value="">اختر السنة الدراسية...</option>
+                </select>
+
+                <select id="regGroup" class="glass-input p-3.5 rounded-2xl text-sm">
+                    <option value="الفوج 01">الفوج 01</option>
+                    <option value="الفوج 02">الفوج 02</option>
+                    <option value="الفوج 03">الفوج 03</option>
+                    <option value="الفوج 04">الفوج 04</option>
+                </select>
+            </div>
+
+            <button onclick="registerStudent()" class="w-full md:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 font-bold text-white shadow-lg transition">
+                <i class="fa-solid fa-qrcode ml-2"></i> حفظ التلميذ وتوليد الكود والـ QR
+            </button>
+
+            <!-- بطاقة النتيجة الفورية للـ QR والكود -->
+            <div id="generatedCard" class="hidden mt-6 p-6 rounded-2xl bg-slate-900/80 border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div class="space-y-2 text-center sm:text-right">
+                    <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">تم التسجيل بنجاح</span>
+                    <h3 id="cardStudentName" class="text-2xl font-black text-white"></h3>
+                    <p id="cardStudentInfo" class="text-sm text-slate-400"></p>
+                    <p class="text-lg font-mono text-blue-400 font-bold">الكود الخاص: <span id="cardStudentCode"></span></p>
+                    <button onclick="downloadGeneratedQR()" class="mt-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-sm font-bold text-white">
+                        <i class="fa-solid fa-download ml-1"></i> تحميل صورة الـ QR
+                    </button>
+                </div>
+                <div id="qrOutput" class="bg-white p-3 rounded-2xl"></div>
+            </div>
+        </section>
+
+        <!-- القسم 2 و 3: الغيابات والإعلانات جنباً إلى جنب -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <!-- نظام الغيابات -->
+            <section class="glass-card p-6 rounded-3xl shadow-xl space-y-5 border-t-2 border-rose-500/40">
+                <h2 class="text-xl font-bold text-rose-400 flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-xmark"></i> 2. تسجيل الغيابات
+                </h2>
+                <div class="space-y-4">
+                    <input type="text" id="absStudentCode" placeholder="كود التلميذ (مثال: ST-4829)" class="glass-input w-full p-3.5 rounded-2xl text-sm font-mono uppercase">
+                    <input type="date" id="absDate" class="glass-input w-full p-3.5 rounded-2xl text-sm">
+                    <input type="text" id="absNote" placeholder="ملاحظة أو الحصة (اختياري)..." class="glass-input w-full p-3.5 rounded-2xl text-sm">
+                    <button onclick="recordAbsence()" class="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 font-bold text-white transition">
+                        <i class="fa-solid fa-user-clock ml-1"></i> تسجيل غياب التلميذ
+                    </button>
+                </div>
+                <!-- آخر الغيابات -->
+                <div class="pt-4 border-t border-slate-800 space-y-2">
+                    <p class="text-xs text-slate-400 font-bold">آخر الغيابات المسجلة:</p>
+                    <div id="recentAbsences" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+                </div>
+            </section>
+
+            <!-- نظام الإعلانات -->
+            <section class="glass-card p-6 rounded-3xl shadow-xl space-y-5 border-t-2 border-amber-500/40">
+                <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-bullhorn"></i> 3. نظام الإعلانات والتنبيهات
+                </h2>
+                <div class="space-y-4">
+                    <input type="text" id="annTitle" placeholder="عنوان الإعلان (مثال: تأجيل حصة الرياضيات)" class="glass-input w-full p-3.5 rounded-2xl text-sm">
+                    <select id="annTarget" class="glass-input w-full p-3.5 rounded-2xl text-sm">
+                        <option value="الجميع">موجه إلى: جميع التلاميذ</option>
+                        <option value="متوسط">موجه إلى: التعليم المتوسط</option>
+                        <option value="ثانوي">موجه إلى: التعليم الثانوي</option>
+                    </select>
+                    <textarea id="annBody" rows="2" placeholder="نص الإعلان بالتفصيل..." class="glass-input w-full p-3.5 rounded-2xl text-sm"></textarea>
+                    <button onclick="publishAnnouncement()" class="w-full py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-500 font-bold text-white transition">
+                        <i class="fa-solid fa-paper-plane ml-1"></i> نشر الإعلان فوراً
+                    </button>
+                </div>
+                <!-- الإعلانات النشطة -->
+                <div class="pt-4 border-t border-slate-800 space-y-2">
+                    <p class="text-xs text-slate-400 font-bold">الإعلانات المنشورة حالياً:</p>
+                    <div id="activeAnnouncements" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ==========================================
+        // ضع إعدادات Firebase الخاصة بمشروعك هنا
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCWStKlmjGctFpKDTdM20ZjpEds314xEMY",
+            authDomain: "ecole-pro-90c70.firebaseapp.com",
+            projectId: "ecole-pro-90c70",
+            storageBucket: "ecole-pro-90c70.firebasestorage.app",
+            messagingSenderId: "1083998100049",
+            appId: "1:1083998100049:web:57830391ab0bfa7359b670"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ضبط تاريخ اليوم تلقائياً للغياب
+        document.getElementById('absDate').valueAsDate = new Date();
+
+        // تحديث قائمة السنوات والشعب حسب المرحلة
+        function toggleBranchSelect() {
+            const level = document.getElementById('regLevel').value;
+            const branchSelect = document.getElementById('regBranch');
+            const yearSelect = document.getElementById('regYear');
+
+            if (level === 'ثانوي') {
+                branchSelect.classList.remove('hidden');
+                yearSelect.innerHTML = `
+                    <option value="السنة الأولى ثانوي">السنة الأولى ثانوي</option>
+                    <option value="السنة الثانية ثانوي">السنة الثانية ثانوي</option>
+                    <option value="السنة الثالثة ثانوي">السنة الثالثة ثانوي</option>
+                `;
+            } else if (level === 'متوسط') {
+                branchSelect.classList.add('hidden');
+                yearSelect.innerHTML = `
+                    <option value="السنة الأولى متوسط">السنة الأولى متوسط</option>
+                    <option value="السنة الثانية متوسط">السنة الثانية متوسط</option>
+                    <option value="السنة الثالثة متوسط">السنة الثالثة متوسط</option>
+                    <option value="السنة الرابعة متوسط">السنة الرابعة متوسط</option>
+                `;
+            }
+        }
+
+        // 1. تسجيل التلميذ وتوليد الكود و QR
+        function registerStudent() {
+            const firstName = document.getElementById('regFirstName').value.trim();
+            const lastName = document.getElementById('regLastName').value.trim();
+            const level = document.getElementById('regLevel').value;
+            const branch = level === 'ثانوي' ? document.getElementById('regBranch').value : 'عام';
+            const year = document.getElementById('regYear').value;
+            const group = document.getElementById('regGroup').value;
+
+            if (!firstName || !lastName || !level || !year) {
+                alert("يرجى ملء جميع البيانات الأساسية!");
+                return;
+            }
+
+            const studentCode = "ST-" + Math.floor(1000 + Math.random() * 9000);
+            const fullName = `${firstName} ${lastName}`;
+
+            db.collection('students').doc(studentCode).set({
+                studentCode,
+                firstName,
+                lastName,
+                fullName,
+                level,
+                branch,
+                year,
+                group,
+                isPaid: false,
+                createdAt: new Date().toISOString()
+            }).then(() => {
+                document.getElementById('cardStudentName').innerText = fullName;
+                document.getElementById('cardStudentInfo').innerText = `${level} ${branch !== 'عام' ? '- ' + branch : ''} | ${year} (${group})`;
+                document.getElementById('cardStudentCode').innerText = studentCode;
+                
+                const qrDiv = document.getElementById('qrOutput');
+                qrDiv.innerHTML = '';
+                new QRCode(qrDiv, { text: studentCode, width: 140, height: 140 });
+                
+                document.getElementById('generatedCard').classList.remove('hidden');
+                document.getElementById('regFirstName').value = '';
+                document.getElementById('regLastName').value = '';
+            }).catch(err => alert("خطأ: " + err.message));
+        }
+
+        function downloadGeneratedQR() {
+            const img = document.querySelector('#qrOutput img');
+            if (img) {
+                const a = document.createElement('a');
+                a.href = img.src;
+                a.download = document.getElementById('cardStudentCode').innerText + "_QR.png";
+                a.click();
+            }
+        }
+
+        // 2. تسجيل غياب
+        function recordAbsence() {
+            const code = document.getElementById('absStudentCode').value.trim().toUpperCase();
+            const date = document.getElementById('absDate').value;
+            const note = document.getElementById('absNote').value.trim();
+
+            if (!code || !date) { alert("أدخل كود التلميذ والتاريخ!"); return; }
+
+            db.collection('students').doc(code).get().then(doc => {
+                if (!doc.exists) { alert("كود التلميذ غير موجود!"); return; }
+                const studentName = doc.data().fullName;
+
+                db.collection('absences').add({
+                    studentCode: code,
+                    studentName,
+                    date,
+                    note: note || "غياب غير مبرر",
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    alert(`تم تسجيل غياب (${studentName}) بتاريخ ${date}`);
+                    document.getElementById('absStudentCode').value = '';
+                    document.getElementById('absNote').value = '';
+                });
+            });
+        }
+
+        // جلب آخر الغيابات
+        db.collection('absences').orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
+            const box = document.getElementById('recentAbsences');
+            box.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                box.insertAdjacentHTML('beforeend', `
+                    <div class="p-2.5 rounded-xl bg-slate-800/60 flex justify-between items-center">
+                        <span><strong class="text-rose-300">${d.studentName}</strong> (${d.studentCode})</span>
+                        <span class="text-slate-400">${d.date}</span>
+                    </div>
+                `);
+            });
+        });
+
+        // 3. نشر إعلان
+        function publishAnnouncement() {
+            const title = document.getElementById('annTitle').value.trim();
+            const target = document.getElementById('annTarget').value;
+            const body = document.getElementById('annBody').value.trim();
+
+            if (!title || !body) { alert("اكتب عنوان ونص الإعلان!"); return; }
+
+            db.collection('announcements').add({
+                title,
+                target,
+                body,
+                date: new Date().toLocaleDateString('ar-DZ'),
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                document.getElementById('annTitle').value = '';
+                document.getElementById('annBody').value = '';
+            });
+        }
+
+        // جلب الإعلانات مع زر حذف
+        db.collection('announcements').orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
+            const box = document.getElementById('activeAnnouncements');
+            box.innerHTML = '';
+            snap.forEach(doc => {
+                const a = doc.data();
+                box.insertAdjacentHTML('beforeend', `
+                    <div class="p-2.5 rounded-xl bg-slate-800/60 flex justify-between items-center">
+                        <div>
+                            <strong class="text-amber-300">${a.title}</strong> <span class="text-slate-400">[${a.target}]</span>
+                            <p class="text-slate-300 mt-0.5">${a.body}</p>
+                        </div>
+                        <button onclick="db.collection('announcements').doc('${doc.id}').delete()" class="text-rose-400 hover:text-rose-300 px-2">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `);
+            });
+        });
+    </script>
+</body>
+</html>
