@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -25,7 +25,7 @@
                 <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-2xl shadow-lg">⚡</div>
                 <div>
                     <h1 class="text-2xl font-black text-white">العمليات اليومية والتسجيل</h1>
-                    <p class="text-sm text-slate-400">تسجيل التلاميذ وتوليد QR • الغيابات • الإعلانات</p>
+                    <p class="text-sm text-slate-400">تسجيل التلاميذ وتوليد QR • رصد الغياب • الإعلانات المخصصة</p>
                 </div>
             </div>
             <span class="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-sm font-bold">
@@ -43,7 +43,7 @@
                 <input type="text" id="regFirstName" placeholder="الاسم" class="glass-input p-3.5 rounded-2xl text-sm">
                 <input type="text" id="regLastName" placeholder="اللقب" class="glass-input p-3.5 rounded-2xl text-sm">
                 
-                <select id="regLevel" onchange="toggleBranchSelect()" class="glass-input p-3.5 rounded-2xl text-sm">
+                <select id="regLevel" onchange="toggleBranchSelect('regLevel', 'regBranch', 'regYear')" class="glass-input p-3.5 rounded-2xl text-sm">
                     <option value="">اختر المرحلة التعليمية...</option>
                     <option value="متوسط">التعليم المتوسط</option>
                     <option value="ثانوي">التعليم الثانوي</option>
@@ -77,7 +77,7 @@
                 <i class="fa-solid fa-qrcode ml-2"></i> حفظ التلميذ وتوليد الكود والـ QR
             </button>
 
-            <!-- بطاقة النتيجة الفورية للـ QR والكود -->
+            <!-- بطاقة النتيجة الفورية -->
             <div id="generatedCard" class="hidden mt-6 p-6 rounded-2xl bg-slate-900/80 border border-blue-500/30 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div class="space-y-2 text-center sm:text-right">
                     <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">تم التسجيل بنجاح</span>
@@ -92,50 +92,88 @@
             </div>
         </section>
 
-        <!-- القسم 2 و 3: الغيابات والإعلانات جنباً إلى جنب -->
+        <!-- القسم 2 و 3: رصد الغياب ونظام الإعلانات المطور -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            <!-- نظام الغيابات -->
-            <section class="glass-card p-6 rounded-3xl shadow-xl space-y-5 border-t-2 border-rose-500/40">
-                <h2 class="text-xl font-bold text-rose-400 flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-xmark"></i> 2. تسجيل الغيابات
-                </h2>
+            <!-- رصد الغياب السريع (النتائج تظهر في موقع السجل) -->
+            <section class="glass-card p-6 rounded-3xl shadow-xl space-y-5 border-t-2 border-rose-500/40 flex flex-col justify-between">
                 <div class="space-y-4">
+                    <h2 class="text-xl font-bold text-rose-400 flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-xmark"></i> 2. رصد غياب تلميذ
+                    </h2>
+                    <p class="text-xs text-slate-400">أدخل كود التلميذ ليتم تسجيل غيابه فوراً في سجل الغيابات الخاص بفوجه.</p>
                     <input type="text" id="absStudentCode" placeholder="كود التلميذ (مثال: ST-4829)" class="glass-input w-full p-3.5 rounded-2xl text-sm font-mono uppercase">
                     <input type="date" id="absDate" class="glass-input w-full p-3.5 rounded-2xl text-sm">
                     <input type="text" id="absNote" placeholder="ملاحظة أو الحصة (اختياري)..." class="glass-input w-full p-3.5 rounded-2xl text-sm">
-                    <button onclick="recordAbsence()" class="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 font-bold text-white transition">
-                        <i class="fa-solid fa-user-clock ml-1"></i> تسجيل غياب التلميذ
-                    </button>
                 </div>
-                <!-- آخر الغيابات -->
-                <div class="pt-4 border-t border-slate-800 space-y-2">
-                    <p class="text-xs text-slate-400 font-bold">آخر الغيابات المسجلة:</p>
-                    <div id="recentAbsences" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
-                </div>
+                <button onclick="recordAbsence()" class="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-500 font-bold text-white transition shadow-lg">
+                    <i class="fa-solid fa-user-clock ml-1"></i> تسجيل غياب التلميذ
+                </button>
             </section>
 
-            <!-- نظام الإعلانات -->
-            <section class="glass-card p-6 rounded-3xl shadow-xl space-y-5 border-t-2 border-amber-500/40">
+            <!-- نظام الإعلانات المطور (تحديد السنة + الفوج + صورة اختيارية) -->
+            <section class="glass-card p-6 rounded-3xl shadow-xl space-y-4 border-t-2 border-amber-500/40">
                 <h2 class="text-xl font-bold text-amber-400 flex items-center gap-2">
                     <i class="fa-solid fa-bullhorn"></i> 3. نظام الإعلانات والتنبيهات
                 </h2>
-                <div class="space-y-4">
-                    <input type="text" id="annTitle" placeholder="عنوان الإعلان (مثال: تأجيل حصة الرياضيات)" class="glass-input w-full p-3.5 rounded-2xl text-sm">
-                    <select id="annTarget" class="glass-input w-full p-3.5 rounded-2xl text-sm">
-                        <option value="الجميع">موجه إلى: جميع التلاميذ</option>
-                        <option value="متوسط">موجه إلى: التعليم المتوسط</option>
-                        <option value="ثانوي">موجه إلى: التعليم الثانوي</option>
-                    </select>
-                    <textarea id="annBody" rows="2" placeholder="نص الإعلان بالتفصيل..." class="glass-input w-full p-3.5 rounded-2xl text-sm"></textarea>
-                    <button onclick="publishAnnouncement()" class="w-full py-3.5 rounded-2xl bg-amber-600 hover:bg-amber-500 font-bold text-white transition">
+                
+                <div class="space-y-3">
+                    <input type="text" id="annTitle" placeholder="عنوان الإعلان (مثال: تأجيل حصة الرياضيات)" class="glass-input w-full p-3 rounded-2xl text-sm">
+                    
+                    <!-- تحديد المرحلة والسنة والفوج بدقة -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <select id="annLevel" onchange="toggleBranchSelect('annLevel', 'annBranch', 'annYear', true)" class="glass-input p-3 rounded-2xl text-xs">
+                            <option value="الجميع">المرحلة: جميع التلاميذ</option>
+                            <option value="متوسط">التعليم المتوسط</option>
+                            <option value="ثانوي">التعليم الثانوي</option>
+                        </select>
+
+                        <select id="annBranch" class="glass-input p-3 rounded-2xl text-xs hidden">
+                            <option value="الكل">الشعبة: جميع الشعب</option>
+                            <option value="جذع مشترك علوم">جذع مشترك علوم</option>
+                            <option value="جذع مشترك آداب">جذع مشترك آداب</option>
+                            <option value="علوم تجريبية">علوم تجريبية</option>
+                            <option value="رياضيات">رياضيات</option>
+                            <option value="تقني رياضي">تقني رياضي</option>
+                            <option value="تسيير واقتصاد">تسيير واقتصاد</option>
+                            <option value="لغات أجنبية">لغات أجنبية</option>
+                            <option value="آداب وفلسفة">آداب وفلسفة</option>
+                        </select>
+
+                        <select id="annYear" class="glass-input p-3 rounded-2xl text-xs">
+                            <option value="الكل">السنة: جميع السنوات</option>
+                        </select>
+
+                        <select id="annGroup" class="glass-input p-3 rounded-2xl text-xs">
+                            <option value="الكل">الفوج: جميع الأفواج</option>
+                            <option value="الفوج 01">الفوج 01</option>
+                            <option value="الفوج 02">الفوج 02</option>
+                            <option value="الفوج 03">الفوج 03</option>
+                            <option value="الفوج 04">الفوج 04</option>
+                        </select>
+                    </div>
+
+                    <textarea id="annBody" rows="2" placeholder="نص الإعلان بالتفصيل (اختياري في حال إرفاق صورة)..." class="glass-input w-full p-3 rounded-2xl text-sm"></textarea>
+
+                    <!-- خانة صغيرة لإرفاق صورة اختيارية -->
+                    <div class="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-slate-800/50 border border-slate-700/60">
+                        <label for="annImageInput" class="cursor-pointer flex items-center gap-2 text-xs text-amber-300 font-bold hover:text-amber-200">
+                            <i class="fa-solid fa-image text-base"></i>
+                            <span id="annImageLabel">إرفاق صورة مع الإعلان (اختياري)</span>
+                        </label>
+                        <input type="file" id="annImageInput" accept="image/*" onchange="previewAnnImage(event)" class="hidden">
+                        <button type="button" id="clearAnnImgBtn" onclick="clearAnnImage()" class="hidden text-xs text-rose-400 hover:text-rose-300">إزالة</button>
+                    </div>
+
+                    <button onclick="publishAnnouncement()" id="publishAnnBtn" class="w-full py-3 rounded-2xl bg-amber-600 hover:bg-amber-500 font-bold text-white transition">
                         <i class="fa-solid fa-paper-plane ml-1"></i> نشر الإعلان فوراً
                     </button>
                 </div>
+
                 <!-- الإعلانات النشطة -->
-                <div class="pt-4 border-t border-slate-800 space-y-2">
+                <div class="pt-3 border-t border-slate-800 space-y-2">
                     <p class="text-xs text-slate-400 font-bold">الإعلانات المنشورة حالياً:</p>
-                    <div id="activeAnnouncements" class="space-y-2 max-h-40 overflow-y-auto text-xs"></div>
+                    <div id="activeAnnouncements" class="space-y-2 max-h-44 overflow-y-auto text-xs"></div>
                 </div>
             </section>
 
@@ -151,45 +189,81 @@
         // ضع إعدادات Firebase الخاصة بمشروعك هنا
         // ==========================================
         const firebaseConfig = {
-          apiKey: "AIzaSyCWStKlmjGctFpKDTdM20ZjpEds314xEMY",
-          authDomain: "ecole-pro-90c70.firebaseapp.com",
-          projectId: "ecole-pro-90c70",
-          storageBucket: "ecole-pro-90c70.firebasestorage.app",
-          messagingSenderId: "1083998100049",
-          appId: "1:1083998100049:web:57830391ab0bfa7359b670"
+            apiKey: "AIzaSyCWStKlmjGctFpKDTdM20ZjpEds314xEMY",
+            authDomain: "ecole-pro-90c70.firebaseapp.com",
+            projectId: "ecole-pro-90c70",
+            storageBucket: "ecole-pro-90c70.firebasestorage.app",
+            messagingSenderId: "1083998100049",
+            appId: "1:1083998100049:web:57830391ab0bfa7359b670"
         };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ضبط تاريخ اليوم تلقائياً للغياب
         document.getElementById('absDate').valueAsDate = new Date();
+        let compressedAnnImageBase64 = "";
 
-        // تحديث قائمة السنوات والشعب حسب المرحلة
-        function toggleBranchSelect() {
-            const level = document.getElementById('regLevel').value;
-            const branchSelect = document.getElementById('regBranch');
-            const yearSelect = document.getElementById('regYear');
+        // دالة موحدة لتحديث قوائم الشعب والسنوات
+        function toggleBranchSelect(levelId, branchId, yearId, includeAllOption = false) {
+            const level = document.getElementById(levelId).value;
+            const branchSelect = document.getElementById(branchId);
+            const yearSelect = document.getElementById(yearId);
+            const defaultOpt = includeAllOption ? `<option value="الكل">السنة: جميع السنوات</option>` : `<option value="">اختر السنة الدراسية...</option>`;
 
             if (level === 'ثانوي') {
                 branchSelect.classList.remove('hidden');
-                yearSelect.innerHTML = `
+                yearSelect.innerHTML = defaultOpt + `
                     <option value="السنة الأولى ثانوي">السنة الأولى ثانوي</option>
                     <option value="السنة الثانية ثانوي">السنة الثانية ثانوي</option>
                     <option value="السنة الثالثة ثانوي">السنة الثالثة ثانوي</option>
                 `;
             } else if (level === 'متوسط') {
                 branchSelect.classList.add('hidden');
-                yearSelect.innerHTML = `
+                yearSelect.innerHTML = defaultOpt + `
                     <option value="السنة الأولى متوسط">السنة الأولى متوسط</option>
                     <option value="السنة الثانية متوسط">السنة الثانية متوسط</option>
                     <option value="السنة الثالثة متوسط">السنة الثالثة متوسط</option>
                     <option value="السنة الرابعة متوسط">السنة الرابعة متوسط</option>
                 `;
+            } else {
+                branchSelect.classList.add('hidden');
+                yearSelect.innerHTML = defaultOpt;
             }
         }
 
-        // 1. تسجيل التلميذ وتوليد الكود و QR
+        // ضغط الصورة المختارة للإعلان لتحفظ بسرعة في Firestore
+        function previewAnnImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            document.getElementById('annImageLabel').innerText = "تم اختيار: " + file.name;
+            document.getElementById('clearAnnImgBtn').classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const maxW = 600;
+                    const scale = maxW / img.width;
+                    canvas.width = maxW;
+                    canvas.height = img.height * scale;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    compressedAnnImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearAnnImage() {
+            compressedAnnImageBase64 = "";
+            document.getElementById('annImageInput').value = "";
+            document.getElementById('annImageLabel').innerText = "إرفاق صورة مع الإعلان (اختياري)";
+            document.getElementById('clearAnnImgBtn').classList.add('hidden');
+        }
+
+        // 1. تسجيل التلميذ
         function registerStudent() {
             const firstName = document.getElementById('regFirstName').value.trim();
             const lastName = document.getElementById('regLastName').value.trim();
@@ -215,7 +289,7 @@
                 branch,
                 year,
                 group,
-                isPaid: false,
+                paidMonths: [], // مصفوفة لتخزين الأشهر المدفوعة بدقة
                 createdAt: new Date().toISOString()
             }).then(() => {
                 document.getElementById('cardStudentName').innerText = fullName;
@@ -242,7 +316,7 @@
             }
         }
 
-        // 2. تسجيل غياب
+        // 2. تسجيل غياب (يحفظ مع بيانات القسم والفوج ليظهر في سجل الغيابات)
         function recordAbsence() {
             const code = document.getElementById('absStudentCode').value.trim().toUpperCase();
             const date = document.getElementById('absDate').value;
@@ -252,68 +326,72 @@
 
             db.collection('students').doc(code).get().then(doc => {
                 if (!doc.exists) { alert("كود التلميذ غير موجود!"); return; }
-                const studentName = doc.data().fullName;
+                const s = doc.data();
 
                 db.collection('absences').add({
                     studentCode: code,
-                    studentName,
+                    studentName: s.fullName,
+                    level: s.level,
+                    branch: s.branch || 'عام',
+                    year: s.year,
+                    group: s.group,
                     date,
                     note: note || "غياب غير مبرر",
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
-                    alert(`تم تسجيل غياب (${studentName}) بتاريخ ${date}`);
+                    alert(`تم تسجيل غياب (${s.fullName}) بنجاح في سجل الغيابات.`);
                     document.getElementById('absStudentCode').value = '';
                     document.getElementById('absNote').value = '';
                 });
             });
         }
 
-        // جلب آخر الغيابات
-        db.collection('absences').orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
-            const box = document.getElementById('recentAbsences');
-            box.innerHTML = '';
-            snap.forEach(doc => {
-                const d = doc.data();
-                box.insertAdjacentHTML('beforeend', `
-                    <div class="p-2.5 rounded-xl bg-slate-800/60 flex justify-between items-center">
-                        <span><strong class="text-rose-300">${d.studentName}</strong> (${d.studentCode})</span>
-                        <span class="text-slate-400">${d.date}</span>
-                    </div>
-                `);
-            });
-        });
-
-        // 3. نشر إعلان
+        // 3. نشر إعلان مخصص
         function publishAnnouncement() {
             const title = document.getElementById('annTitle').value.trim();
-            const target = document.getElementById('annTarget').value;
+            const level = document.getElementById('annLevel').value;
+            const branch = level === 'ثانوي' ? document.getElementById('annBranch').value : 'الكل';
+            const year = document.getElementById('annYear').value;
+            const group = document.getElementById('annGroup').value;
             const body = document.getElementById('annBody').value.trim();
 
-            if (!title || !body) { alert("اكتب عنوان ونص الإعلان!"); return; }
+            if (!title && !body && !compressedAnnImageBase64) {
+                alert("يرجى كتابة عنوان أو نص أو إرفاق صورة للإعلان!");
+                return;
+            }
+
+            let targetText = level === 'الجميع' ? 'الجميع' : `${level} - ${year} (${group})`;
 
             db.collection('announcements').add({
-                title,
-                target,
+                title: title || "إعلان إداري",
+                targetLevel: level,
+                targetBranch: branch,
+                targetYear: year,
+                targetGroup: group,
+                targetSummary: targetText,
                 body,
+                imageUrl: compressedAnnImageBase64,
                 date: new Date().toLocaleDateString('ar-DZ'),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 document.getElementById('annTitle').value = '';
                 document.getElementById('annBody').value = '';
+                clearAnnImage();
             });
         }
 
-        // جلب الإعلانات مع زر حذف
-        db.collection('announcements').orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
+        // جلب الإعلانات
+        db.collection('announcements').orderBy('timestamp', 'desc').limit(6).onSnapshot(snap => {
             const box = document.getElementById('activeAnnouncements');
             box.innerHTML = '';
             snap.forEach(doc => {
                 const a = doc.data();
+                const imgBadge = a.imageUrl ? `<span class="text-emerald-400 mr-1"><i class="fa-solid fa-image"></i> مرفق صورة</span>` : '';
                 box.insertAdjacentHTML('beforeend', `
                     <div class="p-2.5 rounded-xl bg-slate-800/60 flex justify-between items-center">
                         <div>
-                            <strong class="text-amber-300">${a.title}</strong> <span class="text-slate-400">[${a.target}]</span>
-                            <p class="text-slate-300 mt-0.5">${a.body}</p>
+                            <strong class="text-amber-300">${a.title}</strong> <span class="text-slate-400">[${a.targetSummary || a.target}]</span> ${imgBadge}
+                            <p class="text-slate-300 mt-0.5">${a.body || ''}</p>
                         </div>
                         <button onclick="db.collection('announcements').doc('${doc.id}').delete()" class="text-rose-400 hover:text-rose-300 px-2">
                             <i class="fa-solid fa-trash"></i>
